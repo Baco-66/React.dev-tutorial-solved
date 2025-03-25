@@ -1,5 +1,6 @@
 import { useState } from "react";
 
+// Added a conditional check to render the highlighted square in case of a win
 function Square({ value, winner, handleClick }) {
   return (
     <button
@@ -36,6 +37,7 @@ function Board({ player, board, onPlay }) {
   }
 
   return (
+    // Made this use two loops to make the board insead of it being hardcoded
     <>
       <div className="status">{status}</div>
       {Array(3)
@@ -52,9 +54,11 @@ function Board({ player, board, onPlay }) {
 }
 
 export default function Game() {
-  const [history, setHistory] = useState([[Array(9).fill(null), -1]]); // useState([Array(9).fill(null)]);
+  // Changed the history to keep track of the index that was changed in each move
+  const [history, setHistory] = useState([[Array(9).fill(null), -1]]);
   const [currentMove, setCurrentMove] = useState(0);
   const board = history[currentMove][0];
+  // Added this variable to change the order of the list of moves
   const [orderIsDown, setOrderIsDown] = useState(true);
 
   function hanndlePlay(nextBoard, index) {
@@ -70,18 +74,20 @@ export default function Game() {
     setCurrentMove(nextMove);
   }
 
+  // This conditional changes the order of the history
   const orderedMoves = orderIsDown ? history : history.slice().reverse();
 
+  // I didnt like the first message being different from the others so i removed that
+  // Added a special message to identify what move you are in
+  // Added the col and row the move was made in
   const moves = orderedMoves.map(([_, index], move) => (
     <li key={move}>
       {move === currentMove ? (
         <p>You are at move #{move}</p>
       ) : (
         <button onClick={() => jumpTo(move)}>
-          Go to move #{move}{" "}
-          {index !== -1
-            ? `(${Math.floor(index / 3) + 1}, ${(index % 3) + 1})`
-            : ""}
+          Go to move #{move}
+          {index !== -1 && `(${Math.floor(index / 3) + 1}, ${(index % 3) + 1})`}
         </button>
       )}
     </li>
@@ -106,6 +112,7 @@ export default function Game() {
   );
 }
 
+// Changed the return to a tuple with the information necessary to highlight the winning squares
 function calculateWinner(squares) {
   const lines = [
     [0, 1, 2],
