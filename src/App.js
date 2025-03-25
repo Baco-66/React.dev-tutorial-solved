@@ -22,7 +22,7 @@ function Board({ player, board, onPlay }) {
     const nextBoard = board.slice();
     nextBoard[i] = player;
 
-    onPlay(nextBoard);
+    onPlay(nextBoard, i);
   }
 
   function renderSquare(i) {
@@ -52,13 +52,16 @@ function Board({ player, board, onPlay }) {
 }
 
 export default function Game() {
-  const [history, setHistory] = useState([Array(9).fill(null)]);
+  const [history, setHistory] = useState([[Array(9).fill(null), -1]]); // useState([Array(9).fill(null)]);
   const [currentMove, setCurrentMove] = useState(0);
-  const board = history[currentMove];
+  const board = history[currentMove][0];
   const [orderIsDown, setOrderIsDown] = useState(true);
 
-  function hanndlePlay(nextBoard) {
-    const nextHistory = [...history.slice(0, currentMove + 1), nextBoard];
+  function hanndlePlay(nextBoard, index) {
+    const nextHistory = [
+      ...history.slice(0, currentMove + 1),
+      [nextBoard, index],
+    ];
     setHistory(nextHistory);
     setCurrentMove(nextHistory.length - 1);
   }
@@ -67,19 +70,19 @@ export default function Game() {
     setCurrentMove(nextMove);
   }
 
-  const orderedMoves = orderIsDown
-    ? history.map((_, move) => move)
-    : history
-        .map((_, move) => move)
-        .slice()
-        .reverse();
+  const orderedMoves = orderIsDown ? history : history.slice().reverse();
 
-  const moves = orderedMoves.map((move) => (
+  const moves = orderedMoves.map(([_, index], move) => (
     <li key={move}>
       {move === currentMove ? (
         <p>You are at move #{move}</p>
       ) : (
-        <button onClick={() => jumpTo(move)}>Go to move #{move}</button>
+        <button onClick={() => jumpTo(move)}>
+          Go to move #{move}{" "}
+          {index !== -1
+            ? `(${Math.floor(index / 3) + 1}, ${(index % 3) + 1})`
+            : ""}
+        </button>
       )}
     </li>
   ));
